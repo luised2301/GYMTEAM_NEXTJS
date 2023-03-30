@@ -20,7 +20,6 @@ import TextInput from "../../Inputs/TextInput/TextInput";
 const steps = ["Informacion Personal", "Informacion de contacto", "Revisar y Crear"];
 
 export default function NewUserForm() {
-  const router = useRouter();
   const formik = useFormik({
     initialValues: {},
     validationSchema: newUserSchema,
@@ -40,26 +39,9 @@ export default function NewUserForm() {
   const [phoneNumber, setPhone] = React.useState("");
   const [dateValue, setDateValue] = React.useState(dayjs(""));
   const [activeStep, setActiveStep] = React.useState(0);
-  const [skipped, setSkipped] = React.useState(new Set());
-
-  const isStepOptional = (step) => {
-    return step === null;
-  };
-
-  const isStepSkipped = (step) => {
-    return skipped.has(step);
-  };
 
   const handleNext = () => {
-    let newSkipped = skipped;
-    console.log(formik.values);
-    if (isStepSkipped(activeStep)) {
-      newSkipped = new Set(newSkipped.values());
-      newSkipped.delete(activeStep);
-    }
-
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped(newSkipped);
   };
 
   const handleBack = () => {
@@ -87,12 +69,7 @@ export default function NewUserForm() {
         {steps.map((label, index) => {
           const stepProps = {};
           const labelProps = {};
-          if (isStepOptional(index)) {
-            labelProps.optional = <Typography variant="caption">Optional</Typography>;
-          }
-          if (isStepSkipped(index)) {
-            stepProps.completed = false;
-          }
+
           return (
             <Step key={label} {...stepProps}>
               <StepLabel {...labelProps}>{label}</StepLabel>
@@ -121,38 +98,18 @@ export default function NewUserForm() {
                   alignItems: "center",
                 }}
               >
-                <TextField
-                  id="nameInput"
-                  name="name"
-                  label="Name"
-                  value={formik.values.name}
-                  onChange={formik.handleChange}
-                  error={formik.touched.name && Boolean(formik.errors.name)}
-                  placeholder="New user Name"
-                  sx={{ m: 3, fontSize: { xs: "8px", md: "16px" }, width: { lg: "42ch" } }}
-                  helperText={Boolean(formik.touched.name) && formik.errors.name}
-                />
-                <TextField
-                  id="firstLastnameInput"
+                <TextInput name="name" formik={formik} placeholder="New user Name" label="Name" />
+                <TextInput
                   name="firstLastname"
-                  label="First Lastname"
-                  value={formik.values.firstLastname}
-                  onChange={formik.handleChange}
-                  error={formik.errors.firstLastname && Boolean(formik.errors.firstLastname)}
+                  formik={formik}
                   placeholder="New user First Lastname"
-                  sx={{ m: 3, fontSize: { xs: "8px", md: "16px" }, width: { lg: "42ch" } }}
-                  helperText={Boolean(formik.errors.firstLastname) && formik.errors.firstLastname}
+                  label="First Lastname"
                 />
-                <TextField
-                  id="secondLastnameInput"
+                <TextInput
                   name="secondLastname"
-                  label="Second Lastname"
-                  value={formik.values.secondLastname}
-                  onChange={formik.handleChange}
-                  error={formik.errors.secondLastname && Boolean(formik.errors.secondLastname)}
+                  formik={formik}
                   placeholder="New user Second Lastname"
-                  sx={{ m: 3, fontSize: { xs: "8px", md: "16px" }, width: { lg: "42ch" } }}
-                  helperText={Boolean(formik.errors.secondLastname) && formik.errors.secondLastname}
+                  label="Second Lastname"
                 />
                 <GenderSelector
                   id="genderInput"
@@ -160,14 +117,12 @@ export default function NewUserForm() {
                   label="Gender"
                   value={formik.values.gender}
                   onChange={formik.handleChange}
-                  error={formik.errors.gender && Boolean(formik.errors.gender)}
-                  helperText={Boolean(formik.errors.gender) && formik.errors.gender}
                 />
 
                 <DeskDatePicker
                   id="birthDate"
                   name="birthDate"
-                  label="Año de nacimiento"
+                  label="BirthDate"
                   inputFormat="DD/MM/YYYY"
                   value={dateValue}
                   onChange={handleDateChange}
@@ -236,11 +191,6 @@ export default function NewUserForm() {
                 Back
               </Button>
               <Box sx={{ flex: "1 1 auto" }} />
-              {isStepOptional(activeStep) && (
-                <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
-                  Skip
-                </Button>
-              )}
 
               {activeStep !== steps.length - 1 && <Button onClick={handleNext}>NEXT</Button>}
               {activeStep === steps.length - 1 && (
