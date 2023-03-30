@@ -12,10 +12,10 @@ import { newUserSchema } from "../../../services/validationSchemas/newUserSchema
 import styles from "./NewUserForm.module.css";
 import { TextField } from "@mui/material";
 import GenderSelector from "../../Inputs/GenderSelector/GenderSelector";
-import DesktopDatePicker from "../../Inputs/DesktopDatePicker/DesktopDatePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import DeskDatePicker from "../../Inputs/DeskDatePicker/DesktopDatePicker";
 import { MuiTelInput } from "mui-tel-input";
+import { createUser } from "../../../services/fetchServices/createUser";
+import TextInput from "../../Inputs/TextInput/TextInput";
 
 const steps = ["Informacion Personal", "Informacion de contacto", "Revisar y Crear"];
 
@@ -24,14 +24,14 @@ export default function NewUserForm() {
   const formik = useFormik({
     initialValues: {},
     validationSchema: newUserSchema,
-    onSubmit: () => {
-      router.push(`/collection/${formik.values.nameInput}`);
+    onSubmit: (values) => {
+      console.log(values);
+      createUser(values);
     },
   });
   const handleDateChange = (newValue) => {
     setDateValue(newValue.$d);
-
-    formik.values.birthDate = dateValue;
+    formik.values.birthDate = newValue.$d;
   };
   const handlePhoneChange = (newPhone) => {
     setPhone(newPhone);
@@ -81,10 +81,6 @@ export default function NewUserForm() {
     });
   };
 
-  const handleReset = () => {
-    setActiveStep(0);
-  };
-
   return (
     <Box sx={{ width: "100%" }}>
       <Stepper activeStep={activeStep}>
@@ -112,7 +108,6 @@ export default function NewUserForm() {
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
               <Box sx={{ flex: "1 1 auto" }} />
-              <Button onClick={handleReset}>Reset</Button>
             </Box>
           </React.Fragment>
         ) : (
@@ -132,10 +127,10 @@ export default function NewUserForm() {
                   label="Name"
                   value={formik.values.name}
                   onChange={formik.handleChange}
-                  error={formik.errors.name && Boolean(formik.errors.name)}
+                  error={formik.touched.name && Boolean(formik.errors.name)}
                   placeholder="New user Name"
                   sx={{ m: 3, fontSize: { xs: "8px", md: "16px" }, width: { lg: "42ch" } }}
-                  helperText={Boolean(formik.errors.name) && formik.errors.name}
+                  helperText={Boolean(formik.touched.name) && formik.errors.name}
                 />
                 <TextField
                   id="firstLastnameInput"
@@ -168,19 +163,17 @@ export default function NewUserForm() {
                   error={formik.errors.gender && Boolean(formik.errors.gender)}
                   helperText={Boolean(formik.errors.gender) && formik.errors.gender}
                 />
-                <LocalizationProvider dateAdapter={AdapterDayjs} className="birthDate-picker">
-                  <DesktopDatePicker
-                    id="birthDate"
-                    name="birthDate"
-                    label="Año de nacimiento"
-                    inputFormat="DD/MM/YYYY"
-                    value={formik.values.birthDate}
-                    onChange={handleDateChange}
-                    error={formik.touched.birthDate && Boolean(formik.errors.birthDate)}
-                    helperText={formik.touched.birthDate && formik.errors.birthDate}
-                    renderInput={(params) => <TextField {...params} />}
-                  />
-                </LocalizationProvider>
+
+                <DeskDatePicker
+                  id="birthDate"
+                  name="birthDate"
+                  label="Año de nacimiento"
+                  inputFormat="DD/MM/YYYY"
+                  value={dateValue}
+                  onChange={handleDateChange}
+                  error={formik.errors.birthDate && Boolean(formik.errors.birthDate)}
+                  helperText={formik.errors.birthDate && formik.errors.birthDate}
+                />
               </Box>
             )}
             {activeStep === 1 && (
@@ -200,8 +193,8 @@ export default function NewUserForm() {
                   value={formik.values.email}
                   onChange={formik.handleChange}
                   placeholder="New user Email"
-                  error={formik.errors.email && Boolean(formik.errors.email)}
-                  helperText={formik.errors.email && formik.errors.email}
+                  error={formik.touched.email && Boolean(formik.errors.email)}
+                  helperText={formik.touched.email && formik.errors.email}
                 />
                 <MuiTelInput
                   sx={{ m: 3, fontSize: { xs: "8px", md: "16px" }, width: { lg: "42ch" } }}
@@ -213,6 +206,24 @@ export default function NewUserForm() {
                   error={formik.touched.phoneNumber && Boolean(formik.errors.phoneNumber)}
                   helperText={formik.touched.phoneNumber && formik.errors.phoneNumber}
                 />
+              </Box>
+            )}
+            {activeStep === 2 && (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Typography>{formik.values.name}</Typography>
+                <Typography>{formik.values.firstLastname}</Typography>
+                <Typography>{formik.values.secondLastname}</Typography>
+                <Typography>{formik.values.email}</Typography>
+                <Typography>{formik.values.phoneNumber}</Typography>
+                <Typography>{formik.values.birthDate.toString()}</Typography>
+                <Typography>{formik.values.gender}</Typography>
               </Box>
             )}
             <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
@@ -231,9 +242,12 @@ export default function NewUserForm() {
                 </Button>
               )}
 
-              <Button onClick={handleNext}>
-                {activeStep === steps.length - 1 ? "Finish" : "Next"}
-              </Button>
+              {activeStep !== steps.length - 1 && <Button onClick={handleNext}>NEXT</Button>}
+              {activeStep === steps.length - 1 && (
+                <Button type="submit" onClick={formik.handleSubmit}>
+                  SUBMMIT
+                </Button>
+              )}
             </Box>
           </React.Fragment>
         )}

@@ -24,6 +24,8 @@
     "prop-types": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "sweetalert2": "^11.4.8",
+    "sweetalert2-react-content": "^5.0.7",
     "yup": "^1.0.2"
   },
   "devDependencies": {

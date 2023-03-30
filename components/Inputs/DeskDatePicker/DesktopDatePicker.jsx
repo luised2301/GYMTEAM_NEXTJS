@@ -8,22 +8,21 @@ import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
 import { TextField } from "@mui/material";
 
-export default function DestktopDatePicker(props) {
+export default function DeskDatePicker({ label, onChange }) {
   const [value, setValue] = React.useState(dayjs("2005-06-18T21:11:54"));
 
   const handleChange = (newValue) => {
     setValue(newValue);
-    console.log(newValue);
   };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DesktopDatePicker
-        label={props.label}
+        label={label}
         inputFormat="MM/DD/YYYY"
         value={value}
-        onChange={handleChange}
-        renderInput={(params) => <TextField {...params} />}
+        onChange={(handleChange, onChange)}
+        disableFuture={true}
       />
     </LocalizationProvider>
   );
